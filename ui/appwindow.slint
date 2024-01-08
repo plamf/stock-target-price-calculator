@@ -1,0 +1,58 @@
+import { GridBox, Button, Slider , LineEdit, VerticalBox} from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    height: 700px;
+    in property<string> results: "";
+    callback calculate-target-price(string,string,string);
+    GridBox {
+        padding: 25px;
+        spacing: 15px;
+        Row {
+             aktienpreis := LineEdit {
+        font-size: 14px;
+        width: 200px;
+        height: 35px;
+        input-type: decimal;
+        placeholder-text: "Aktienpreis beim kauf";
+        }
+             anzahl := LineEdit {
+        font-size: 14px;
+        width: 200px;
+        height: 35px;
+        input-type: number;
+        placeholder-text: "Anzahl gekauft";
+        }
+             gewinnProzentsatz := LineEdit {
+        font-size: 14px;
+        width: 200px;
+        height: 35px;
+        input-type: decimal;
+        placeholder-text: "Ziel Nettogewinn (%)";
+        }
+    }
+        Row {
+            calcButton := Button { 
+                text: calcButton.enabled ? "Berechnen" : "Bitte alle Felder ausfuellen";
+                height: 50px;
+                primary: true;
+                colspan: 3; 
+                clicked => {calculate-target-price(aktienpreis.text, anzahl.text, gewinnProzentsatz.text)}
+                enabled: aktienpreis.text != "" && anzahl.text != "" && gewinnProzentsatz.text != "";
+            }
+        }
+        Row {
+            VerticalBox {
+                colspan: 3;
+                Rectangle {
+                    background: #444444;
+                    Text{
+                        font-size: 16px;
+                        width: parent.width - 50px;
+                        height: parent.height - 50px;
+                        text: root.results;
+                    }
+                }
+            }
+        }
+    }
+}
