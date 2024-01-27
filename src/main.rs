@@ -7,47 +7,27 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui = AppWindow::new()?;
 
     let ui_handle = ui.as_weak();
-    ui.on_calculate_target_price(move |aktienpreis, anzahl, gewuenschterGewinnProzent| {
+    ui.on_calculate_target_price(move |aktienpreis, anzahl, gewuenschter_gewinn_prozent| {
         let ui = ui_handle.unwrap();
-        let stockpriceNum: f64 = aktienpreis.trim().parse().unwrap();
-        let amountNum: f64 = anzahl.trim().parse().unwrap();
-        let profitPercentageNum: f64 = gewuenschterGewinnProzent.trim().parse().unwrap();
+        let stockprice_num = aktienpreis.trim().parse::<f64>().unwrap();
+        let amount_num = anzahl.trim().parse::<f64>().unwrap();
+        let profit_percentage_num = gewuenschter_gewinn_prozent.trim().parse::<f64>().unwrap();
 
-        let notwendigeSteigerung = stockpriceNum * (profitPercentageNum / 100.0) / MULTIPLIER;
-        let investitionsSumme = stockpriceNum * amountNum;
-        let gewuenschterWertProStueck = stockpriceNum + notwendigeSteigerung;
-        let steuern = notwendigeSteigerung * KEST;
-        let kestInProzent = KEST * 100.0;
-        let nettogewinn = notwendigeSteigerung - steuern;
-        let summeAuszahlungBrutto = investitionsSumme + (notwendigeSteigerung * amountNum);
-        let summeSteuern = steuern * amountNum;
-        let summeGewinn = (notwendigeSteigerung - steuern) * amountNum;
-        let summeAuszahlung =
-            investitionsSumme + (notwendigeSteigerung * amountNum) - (steuern * amountNum);
+        let notwendige_steigerung = stockprice_num * profit_percentage_num / 100.0 / MULTIPLIER;
+        let steuern_auf_erhoehung = notwendige_steigerung * amount_num * KEST;
 
-        let result_text = format!(
-            "Ergebnis pro Stueck:\n
-Der Aktienkurs muss auf {:.2} steigen.\n
-Von der Differenz ({:.2}) werden {:.1}% ({:.2}) Steuern abgezogen.\n
-Davon bleibt ein Nettogewinn von {:.2} pro Stueck.\n\n\n
-Ergebnis Gesamt:\n
-Summe Auszahlung (brutto): {:.2}\n
-Summe Steuern: {:.2}\n
-Summe Gewinn: {:.2}\n
-Summe Auszahlung (netto): {:.2}
-",
-            gewuenschterWertProStueck,
-            notwendigeSteigerung,
-            kestInProzent,
-            steuern,
-            nettogewinn,
-            summeAuszahlungBrutto,
-            summeSteuern,
-            summeGewinn,
-            summeAuszahlung
-        );
+        let summe_brutto = stockprice_num * amount_num + notwendige_steigerung * amount_num;
+        let summe_auszahlung = summe_brutto - steuern_auf_erhoehung;
+        let summe_gewinn = summe_auszahlung - (stockprice_num * amount_num);
 
-        ui.set_results(result_text.into());
+        ui.set_results(format!(
+            "Der Aktienkurs muss auf {:.2} steigen.\n\n\nSumme (brutto): {:.2}\nSumme Steuern: {:.2}\n\nSumme Auszahlung (netto): {:.2}\nSumme Gewinn: {:.2}",
+            stockprice_num + notwendige_steigerung,
+            summe_brutto,
+            steuern_auf_erhoehung,
+            summe_auszahlung,
+            summe_gewinn
+        ).into());
     });
 
     ui.run()
