@@ -10,6 +10,7 @@ description = "https://github.com/plamf/stock-target-price-calculator"
 
 [dependencies]
 slint = "1.0"
+num-format = "0.4.4"
 
 [build-dependencies]
 slint-build = "1.0"
